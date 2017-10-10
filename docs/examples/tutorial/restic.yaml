@@ -13,11 +13,11 @@ spec:
       keepLast: 5
       prune: true
   backend:
-    local:
-      path: /safe/data
-      volumeSource:
-        emptyDir: {}
-    storageSecretName: stash-demo
+    s3:
+      endpoint: 'nyc3.digitaloceanspaces.com'
+      bucket: stash-qa2
+      prefix: demo
+    storageSecretName: do-secret
   schedule: '@every 1m'
   volumeMounts:
   - mountPath: /source/data
