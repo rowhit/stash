@@ -27,7 +27,11 @@ type Restic struct {
 
 type ResticSpec struct {
 	Selector      metav1.LabelSelector `json:"selector,omitempty"`
+
 	FileGroups    []FileGroup          `json:"fileGroups,omitempty"`
+	// retention policy of snapshots
+	RetentionPolicies []RetentionPolicy `json:"retentionPolicy,omitempty"`
+
 	Backend       Backend              `json:"backend,omitempty"`
 	Schedule      string               `json:"schedule,omitempty"`
 	UseAutoPrefix PrefixType           `json:"useAutoPrefix,omitempty"`
@@ -54,16 +58,18 @@ type ResticList struct {
 }
 
 type FileGroup struct {
-	Filter `json:",inline,omitempty"`
-	// retention policy of snapshots
-	RetentionPolicy RetentionPolicy `json:"retentionPolicy,omitempty"`
-}
-
-type Filter struct {
 	// Source of the backup volumeName:path
 	Path string `json:"path,omitempty"`
 	// Tags of a snapshots
 	Tags []string `json:"tags,omitempty"`
+
+	RetentionPolicyName string
+}
+
+type RestoreSpec struct {
+	// Name of FileGroups
+	FileGroup string
+	SnapshotID string
 }
 
 type Backend struct {
@@ -126,6 +132,7 @@ const (
 )
 
 type RetentionPolicy struct {
+	Name        string
 	KeepLast    int      `json:"keepLast,omitempty"`
 	KeepHourly  int      `json:"keepHourly,omitempty"`
 	KeepDaily   int      `json:"keepDaily,omitempty"`
@@ -151,13 +158,10 @@ type Recovery struct {
 type RecoverySpec struct {
 	Volumes        []apiv1.Volume  `json:"volumes,omitempty"`
 	Restic         string          `json:"restic,omitempty"`
-	RecoveryGroups []RecoveryGroup `json:"recoveryGroups,omitempty"`
+	// SnapshotList map[string]string `json:"recoveryGroups,omitempty"` // path => snapshotID
 }
 
-type RecoveryGroup struct {
-	Filter     `json:",inline,omitempty"`
-	SnapshotID string `json:"snapshotID,omitempty"`
-}
+// /s1/a/ : latest
 
 type RecoveryStatus struct {
 	RecoveryStatus   string `json:"recoveryStatus,omitempty"`
